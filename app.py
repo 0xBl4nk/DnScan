@@ -9,6 +9,21 @@ wlist = sys.argv[2]
 record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT']
 universal_list = []
 
+def gen_banner():
+    print(""" 
++=================================================================+
+|              ######     ######              #          ######   |
+|   #######                                   #   ###             |
+|      #     ########## ##########   ##       ####     ########## |
+|      #     #        #      #      #  ##     #        #        # |
+|      #            ##       #     #     ##   #               ##  |
+|      #          ##        #              ## #             ##    |
+| ##########    ##        ##                   #######    ##      |
++=================================================================+                                                             
+| Made By: Arthur Ottoni --> github.com/arthurhydr/DnScan         |
++=================================================================+
+            """)
+
 def read_list():
     open_file = open(wlist, 'r')
     for word in open_file:
@@ -16,13 +31,13 @@ def read_list():
 
 def start_subscan():
     with ThreadPoolExecutor(30) as executor:
-        print("------------- subdomain ---------------")
+        print("\n------------- subdomain ---------------")
         sub_scan = [executor.submit(sub_domain_scan, word) for word in universal_list]
         wait(sub_scan)
-        print("------------- possible Takeover ---------------")
+        print("\n------------- possible Takeover ---------------")
         take_scan = [executor.submit(possible_takeover, word) for word in universal_list]
         wait(take_scan)
-        print("------------- DNS RECON ---------------")
+        print("\n------------- DNS RECON ---------------")
         dns_scan = [executor.submit(dns_recon, word) for word in universal_list]
 
 def sub_domain_scan(word):
@@ -64,6 +79,7 @@ def dns_recon(word):
             quit()
 
 def main():
+    gen_banner()
     read_list()
     start_subscan()
 main()
