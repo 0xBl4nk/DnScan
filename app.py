@@ -30,7 +30,7 @@ def read_list():
         universal_list.append(word.rstrip('\n'))
 
 def start_subdomain_thread():
-    with ThreadPoolExecutor(100) as executor:
+    with ThreadPoolExecutor(50) as executor:
         scan = [executor.submit(sub_domain_scan, word) for word in universal_list]
         wait(scan)
 
@@ -55,8 +55,6 @@ def sub_domain_scan(word):
         pass
     except dns.resolver.NoAnswer:
         pass
-    except KeyboardInterrupt:
-        quit()
 
 def possible_takeover(word):
     try:
@@ -67,8 +65,6 @@ def possible_takeover(word):
         pass
     except dns.resolver.NoAnswer:
         pass
-    except KeyboardInterrupt:
-        quit()
 
 def dns_recon(word):
     for record in record_types:
@@ -80,19 +76,20 @@ def dns_recon(word):
             pass
         except dns.resolver.NXDOMAIN:
             pass
-        except KeyboardInterrupt:
-            quit()
 
 def main():
     gen_banner()
     read_list()
     
-    
-    print("\n------------- Subdomain ---------------")
-    start_subdomain_thread()
-    print("\n------------- Possible Takeover -------------")
-    start_takeover_thread()
-    print("\n------------- DNS Recon -------------")
-    start_dns_resolve_thread()
+    try:    
+        print("\n------------- Subdomain ---------------")
+        start_subdomain_thread()
+        print("\n------------- Possible Takeover -------------")
+        start_takeover_thread()
+        print("\n------------- DNS Recon -------------")
+        start_dns_resolve_thread()
+    except KeyboardInterrupt:
+        quit()
+
 if __name__ == '__main__':
     main()
