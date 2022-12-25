@@ -29,8 +29,8 @@ def read_list():
     for word in open_file:
         universal_list.append(word.rstrip('\n'))
 
-def start_subscan():
-    with ThreadPoolExecutor(30) as executor:
+def start_dnsrecon():
+    with ThreadPoolExecutor(100) as executor:
         print("\n------------- subdomain ---------------")
         sub_scan = [executor.submit(sub_domain_scan, word) for word in universal_list]
         wait(sub_scan)
@@ -53,6 +53,7 @@ def sub_domain_scan(word):
             pass
         except KeyboardInterrupt:
             quit()
+
 def possible_takeover(word):
     try:
         answer = dns.resolver.resolve(f'{word}.{host}', 'CNAME')
@@ -81,5 +82,7 @@ def dns_recon(word):
 def main():
     gen_banner()
     read_list()
-    start_subscan()
-main()
+    start_dnsrecon()
+
+if __name__ == '__main__':
+    main()
