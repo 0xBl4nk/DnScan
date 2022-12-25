@@ -1,13 +1,14 @@
-import dns.resolver
 import sys
-from concurrent.futures import ThreadPoolExecutor
+import dns.resolver
+
 from concurrent.futures import wait
+from concurrent.futures import ThreadPoolExecutor
 
 host = sys.argv[1]
 wlist = sys.argv[2]
 
-record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT']
 universal_list = []
+record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT']
 
 def gen_banner():
     print(""" 
