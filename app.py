@@ -29,30 +29,34 @@ def read_list():
     for word in open_file:
         universal_list.append(word.rstrip('\n'))
 
-def start_dnsrecon():
+def start_subdomain_thread():
     with ThreadPoolExecutor(100) as executor:
-        print("\n------------- subdomain ---------------")
-        sub_scan = [executor.submit(sub_domain_scan, word) for word in universal_list]
-        wait(sub_scan)
-        print("\n------------- possible Takeover ---------------")
-        take_scan = [executor.submit(possible_takeover, word) for word in universal_list]
-        wait(take_scan)
-        print("\n------------- DNS RECON ---------------")
-        dns_scan = [executor.submit(dns_recon, word) for word in universal_list]
+        scan = [executor.submit(sub_domain_scan, word) for word in universal_list]
+        wait(scan)
+
+def start_takeover_thread():
+    with ThreadPoolExecutor(50) as executor:
+        scan = [executor.submit(possible_takeover, word) for word in universal_list]
+        wait(scan)
+
+def start_dns_resolve_thread():
+    with ThreadPoolExecutor(50) as executor:
+        scan = [executor.submit(dns_recon, word) for word in universal_list]
+        wait(scan)
 
 def sub_domain_scan(word):
-        try:
-            ip_value = dns.resolver.resolve(f'{word}.{host}', 'A')
-            if ip_value:
-                print(f'{word}.{host}')
-            else:
-                pass
-        except dns.resolver.NXDOMAIN:
+    try:
+        ip_value = dns.resolver.resolve(f'{word}.{host}', 'A')
+        if ip_value:
+            print(f'{word}.{host}')
+        else:
             pass
-        except dns.resolver.NoAnswer:
-            pass
-        except KeyboardInterrupt:
-            quit()
+    except dns.resolver.NXDOMAIN:
+        pass
+    except dns.resolver.NoAnswer:
+        pass
+    except KeyboardInterrupt:
+        quit()
 
 def possible_takeover(word):
     try:
@@ -82,7 +86,13 @@ def dns_recon(word):
 def main():
     gen_banner()
     read_list()
-    start_dnsrecon()
-
+    
+    
+    print("\n------------- Subdomain ---------------")
+    start_subdomain_thread()
+    print("\n------------- Possible Takeover -------------")
+    start_takeover_thread()
+    print("\n------------- DNS Recon -------------")
+    start_dns_resolve_thread()
 if __name__ == '__main__':
     main()
