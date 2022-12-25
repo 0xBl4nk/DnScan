@@ -543,6 +543,7 @@ q
 qa
 r
 ra
+rh
 radio
 radius
 ras
@@ -779,3 +780,8 @@ xml
 zabbix
 zeus
 zimbra
+infrasecreta
+srvkey
+documentacao
+parsingok
+piloto
