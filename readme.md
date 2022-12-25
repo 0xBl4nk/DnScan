@@ -58,7 +58,7 @@ We thank the following people who contributed to this project:
       <a href="https://github.com/Garoze">
         <img src="https://avatars.githubusercontent.com/u/63270057" width="100px;" alt="Garoze on GitHub"/><br>
         <sub>
-          <b>Arthur Ottoni</b>
+          <b>Garoze</b>
         </sub>
       </a>
     </td>
