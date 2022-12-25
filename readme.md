@@ -1,12 +1,12 @@
-
 # 💻 What is this
+
 > A multithread dns scanner that shows subdomains of a host, possible subdomains vulnerable to "Subdomain Takeover" and DNS records for each subdomain.
 
 ## 📃 Requirements
 
-* `Python 3.10.x`
-* `Linux`
-* OBS: not tested on windows
+- `Python 3.10.x`
+- `Linux`
+- OBS: not tested on windows
 
 ## 🚀 Installation
 
@@ -16,17 +16,20 @@ To install **DnScan** follow the steps
 git clone https://github.com/ArthurHydr/DnScan.git
 ```
 
-## ☕ Use 
+## ☕ Use
 
 ### To run DnScan:
+
 ```
 python3 app.py <domain.com> <wordlist.txt>
 ```
 
 #### Output example:
+
 <img src="https://i.imgur.com/uKBnDL4.png" alt="chip-8 output">
 
 ## 📫 Contribuite
+
 ### To contribute to chip-8, follow these steps
 
 1. Fork this repository.
@@ -51,5 +54,13 @@ We thank the following people who contributed to this project:
         </sub>
       </a>
     </td>
-    </table>
-
+     <td align="center">
+      <a href="https://github.com/Garoze">
+        <img src="https://avatars.githubusercontent.com/u/63270057" width="100px;" alt="Garoze on GitHub"/><br>
+        <sub>
+          <b>Arthur Ottoni</b>
+        </sub>
+      </a>
+    </td>
+  </tr>
+</table>
