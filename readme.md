@@ -5,8 +5,6 @@
 ## 📃 Requirements
 
 - `Python 3.10.x`
-- `Linux`
-- OBS: not tested on windows
 
 ## 🚀 Installation
 
