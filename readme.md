@@ -8,12 +8,15 @@
 
 ## 🚀 Installation
 
-To install **DnScan** follow the steps
+* To install **DnScan** follow the steps
 
 ```
 git clone https://github.com/ArthurHydr/DnScan.git
 ```
-
+* To install requirements: (dnspython)
+```
+pip3 install -r requirements.txt
+```
 ## ☕ Use
 
 ### To run DnScan:
