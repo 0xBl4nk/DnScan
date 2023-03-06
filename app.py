@@ -8,7 +8,7 @@ host = sys.argv[1]
 wlist = sys.argv[2]
 
 universal_list = []
-record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT']
+record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT', 'SOA']
 
 def gen_banner():
     print(""" 
