@@ -89,6 +89,7 @@ def transfer_zone(host, nameserver):
         for name, node in z.nodes.items():
             print(name, node.to_text(name))
 
+
         print(f'Successful zone-transfer to {nameserver}')
     except dns.zone.NoSOA:
         print(f'Zone-transfer failed for {nameserver}')
@@ -115,7 +116,7 @@ def main():
     
     try:    
         print('\n------------- Zone-Transfer -------------')
-        test_all_nameservers(host)
+        start_transfer_zone_thread()
         print("\n------------- Subdomain ---------------")
         start_subdomain_thread()
         print("\n------------- Possible Takeover -------------")
