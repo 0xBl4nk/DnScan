@@ -116,7 +116,7 @@ def main():
     
     try:    
         print('\n------------- Zone-Transfer -------------')
-        start_transfer_zone_thread()
+        test_all_nameservers(host)
         print("\n------------- Subdomain ---------------")
         start_subdomain_thread()
         print("\n------------- Possible Takeover -------------")
