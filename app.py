@@ -1,5 +1,7 @@
 import sys
 import dns.resolver
+import dns.query
+import dns.zone
 
 from concurrent.futures import wait
 from concurrent.futures import ThreadPoolExecutor
@@ -78,17 +80,49 @@ def dns_recon(word):
         except dns.resolver.NXDOMAIN:
             pass
 
+def transfer_zone(host, nameserver):
+    try:
+        ns_name = dns.name.from_text(nameserver)
+        ns = dns.resolver.Resolver().resolve(ns_name, rdtype='A').response.answer[0][0].to_text()
+        z = dns.zone.from_xfr(dns.query.xfr(ns, host))
+
+        for name, node in z.nodes.items():
+            print(name, node.to_text(name))
+
+        print(f'Successful zone-transfer to {nameserver}')
+    except dns.zone.NoSOA:
+        print(f'Zone-transfer failed for {nameserver}')
+    except Exception as e:
+        print(f'Error in zone-transfer to {nameserver}')
+
+def test_all_nameservers(host):
+    try:
+        resolver = dns.resolver.Resolver()
+        nameservers = resolver.resolve(host, 'NS')
+
+        for nameserver in nameservers:
+            ns_server = str(nameserver.target)
+            print(f'Testing nameserver: {ns_server}')
+            transfer_zone(host, ns_server)
+    except dns.resolver.NXDOMAIN:
+        print(f'{host} NOT FOUND.')
+    except Exception as e:
+        print(f'Testing Error: {str(e)}')
+
 def main():
     gen_banner()
     read_list()
     
     try:    
+        print('\n------------- Zone-Transfer -------------')
+        test_all_nameservers(host)
         print("\n------------- Subdomain ---------------")
         start_subdomain_thread()
         print("\n------------- Possible Takeover -------------")
         start_takeover_thread()
         print("\n------------- DNS Recon -------------")
         start_dns_resolve_thread()
+
     except KeyboardInterrupt:
         quit()
 
