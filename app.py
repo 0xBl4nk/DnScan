@@ -52,11 +52,11 @@ def transfer_zone(host, nameserver):
         for name, node in z.nodes.items():
             logger.info(f'{name} {node.to_text(name)}')
 
-        logger.info(f'Successful zone-transfer to {nameserver}')
+        logger.info(f'{Color.BLUE}Successful zone-transfer to {nameserver}{Color.ENDC}')
     except dns.zone.NoSOA:
-        logger.error(f'Zone-transfer failed for {nameserver}')
+        logger.error(f'{Color.RED}Zone-transfer failed for {nameserver}{Color.ENDC}')
     except Exception as e:
-        logger.error(f'Error in zone-transfer to {nameserver}')
+        logger.error(f'{Color.RED}Error in zone-transfer to {nameserver}{Color.ENDC}')
 
 def test_all_nameservers(host):
     try:
@@ -65,9 +65,9 @@ def test_all_nameservers(host):
 
         return [str(nameserver.target) for nameserver in nameservers]
     except dns.resolver.NXDOMAIN:
-        logger.error(f'{host} NOT FOUND.')
+        logger.error(f'{Color.RED}{host} NOT FOUND.{Color.ENDC}')
     except Exception as e:
-        logger.error(f'Testing Error: {str(e)}')
+        logger.error(f'{Color.RED}Testing Error: {str(e)}{Color.ENDC}')
 
 def sub_domain_scan(host, wordlist, threads):
     with ThreadPoolExecutor(threads) as executor:
@@ -99,17 +99,17 @@ def possible_takeover_worker(host, word):
     except dns.resolver.NoAnswer:
         pass
 
-def dns_recon(host, wordlist, threads):
+def dns_recon(host, wordlist, threads, flags):
     with ThreadPoolExecutor(threads) as executor:
-        scan = [executor.submit(dns_recon_worker, host, word) for word in wordlist]
+        scan = [executor.submit(dns_recon_worker, host, word, flags) for word in wordlist]
         wait(scan)
 
-def dns_recon_worker(host, word):
-    for record in record_types:
+def dns_recon_worker(host, word, flags):
+    for flag in flags:
         try:
-            answer = dns.resolver.resolve(f'{word}.{host}', record)
+            answer = dns.resolver.resolve(f'{word}.{host}', flag)
             for data in answer:
-                logger.info(f'{word}.{host}  {record}  -> {data.to_text()}')
+                logger.info(f'{word}.{host}  {flag}  -> {data.to_text()}')
         except dns.resolver.NoAnswer:
             pass
         except dns.resolver.NXDOMAIN:
@@ -121,6 +121,7 @@ def main():
     parser.add_argument('wordlist', help='File containing a list of subdomains or keywords')
     parser.add_argument('--threads', type=int, default=50, help='Number of threads to use for scanning (default: 50)')
     parser.add_argument('--scan', choices=['subdomain', 'takeover', 'recon', 'all'], default='all', help='Type of scan to perform (default: all)')
+    parser.add_argument('--flags', nargs='+', default=['ALL'], help='DNS record types to use in DNS recon (default: ALL)')
     args = parser.parse_args()
 
     gen_banner()
@@ -142,7 +143,7 @@ def main():
             possible_takeover(args.host, wordlist, args.threads)
         if args.scan == 'recon' or args.scan == 'all':
             print('\n------------- DNS Recon -------------')
-            dns_recon(args.host, wordlist, args.threads)
+            dns_recon(args.host, wordlist, args.threads, args.flags)
 
     except KeyboardInterrupt:
         quit()
