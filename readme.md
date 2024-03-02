@@ -31,7 +31,7 @@ params:
 
 #### Output example:
 
-<img src="https://i.imgur.com/uKBnDL4.png" alt="chip-8 output">
+<img src="https://i.imgur.com/fb0FY30.png" alt="chip-8 output">
 
 ## 📫 Contribuite
 
