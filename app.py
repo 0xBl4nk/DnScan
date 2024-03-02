@@ -3,9 +3,13 @@ import dns.resolver
 import dns.query
 import dns.zone
 from concurrent.futures import wait, ThreadPoolExecutor
+import logging
 
 host = sys.argv[1]
 wlist = sys.argv[2]
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 universal_list = []
 record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT', 'SOA']
@@ -29,6 +33,7 @@ def read_list():
     open_file = open(wlist, 'r')
     for word in open_file:
         universal_list.append(word.rstrip('\n'))
+    logger.info('Wordlist opened successfully.')
 
 def start_subdomain_thread():
     with ThreadPoolExecutor(50) as executor:
@@ -52,13 +57,13 @@ def transfer_zone(host, nameserver):
         z = dns.zone.from_xfr(dns.query.xfr(ns, host))
 
         for name, node in z.nodes.items():
-            print(name, node.to_text(name))
+            logger.info(f'{name} {node.to_text(name)}')
 
-        print(f'Successful zone-transfer to {nameserver}')
+        logger.info(f'Successful zone-transfer to {nameserver}')
     except dns.zone.NoSOA:
-        print(f'Zone-transfer failed for {nameserver}')
+        logger.error(f'Zone-transfer failed for {nameserver}')
     except Exception as e:
-        print(f'Error in zone-transfer to {nameserver}')
+        logger.error(f'Error in zone-transfer to {nameserver}')
 
 def test_all_nameservers(host):
     try:
@@ -67,15 +72,15 @@ def test_all_nameservers(host):
 
         return [str(nameserver.target) for nameserver in nameservers]
     except dns.resolver.NXDOMAIN:
-        print(f'{host} NOT FOUND.')
+        logger.error(f'{host} NOT FOUND.')
     except Exception as e:
-        print(f'Testing Error: {str(e)}')
+        logger.error(f'Testing Error: {str(e)}')
 
 def sub_domain_scan(word):
     try:
         ip_value = dns.resolver.resolve(f'{word}.{host}', 'A')
         if ip_value:
-            print(f'{word}.{host}')
+            logger.info(f'{word}.{host}')
         else:
             pass
     except dns.resolver.NXDOMAIN:
@@ -87,7 +92,7 @@ def possible_takeover(word):
     try:
         answer = dns.resolver.resolve(f'{word}.{host}', 'CNAME')
         for record in answer:
-            print(f'{word}.{host} -> {record.to_text()}')
+            logger.info(f'{word}.{host} -> {record.to_text()}')
     except dns.resolver.NXDOMAIN:
         pass
     except dns.resolver.NoAnswer:
@@ -98,7 +103,7 @@ def dns_recon(word):
         try:
             answer = dns.resolver.resolve(f'{word}.{host}', record)
             for data in answer:
-                print(f'{word}.{host}  {record}  ->', data.to_text())
+                logger.info(f'{word}.{host}  {record}  -> {data.to_text()}')
         except dns.resolver.NoAnswer:
             pass
         except dns.resolver.NXDOMAIN:
@@ -109,17 +114,17 @@ def main():
     read_list()
     
     try:    
-        print('\n------------- Zone-Transfer -------------')
+        logger.info('\n------------- Zone-Transfer -------------')
         nameservers = test_all_nameservers(host)
         for ns_server in nameservers:
-            print(f'Testing nameserver: {ns_server}')
+            logger.info(f'Testing nameserver: {ns_server}')
             transfer_zone(host, ns_server)
         
-        print("\n------------- Subdomain ---------------")
+        logger.info('\n------------- Subdomain ---------------')
         start_subdomain_thread()
-        print("\n------------- Possible Takeover -------------")
+        logger.info('\n------------- Possible Takeover -------------')
         start_takeover_thread()
-        print("\n------------- DNS Recon -------------")
+        logger.info('\n------------- DNS Recon -------------')
         start_dns_resolve_thread()
 
     except KeyboardInterrupt:
