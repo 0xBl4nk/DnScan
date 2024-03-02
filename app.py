@@ -120,11 +120,11 @@ def main():
             logger.info(f'Testing nameserver: {ns_server}')
             transfer_zone(host, ns_server)
         
-        logger.info('\n------------- Subdomain ---------------')
+        print('\n------------- Subdomain ---------------')
         start_subdomain_thread()
-        logger.info('\n------------- Possible Takeover -------------')
+        print('\n------------- Possible Takeover -------------')
         start_takeover_thread()
-        logger.info('\n------------- DNS Recon -------------')
+        print('\n------------- DNS Recon -------------')
         start_dns_resolve_thread()
 
     except KeyboardInterrupt:
