@@ -22,7 +22,11 @@ pip3 install -r requirements.txt
 ### To run DnScan:
 
 ```
-python3 app.py <domain.com> <wordlist.txt>
+python3 app.py <host> <wordlist> (subdomains.txt wordlist, in repository)
+params: 
+  --flags <dns flag> DEFAULT: ALL
+  --threads <n threads>
+  --scan {subdomain,takeover,recon,all} DEFAULT: ALL
 ```
 
 #### Output example:
