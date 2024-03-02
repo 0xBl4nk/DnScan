@@ -11,6 +11,7 @@ class Color:
     RED = '\033[91m'
     YELLOW = '\033[93m'
     ENDC = '\033[0m'
+
 logging.basicConfig(level=logging.INFO, format=f'{Color.YELLOW}[%(asctime)s]{Color.ENDC} {Color.BLUE}[%(levelname)s]{Color.ENDC} - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -105,15 +106,27 @@ def dns_recon(host, wordlist, threads, flags):
         wait(scan)
 
 def dns_recon_worker(host, word, flags):
-    for flag in flags:
-        try:
-            answer = dns.resolver.resolve(f'{word}.{host}', flag)
-            for data in answer:
-                logger.info(f'{word}.{host}  {flag}  -> {data.to_text()}')
-        except dns.resolver.NoAnswer:
-            pass
-        except dns.resolver.NXDOMAIN:
-            pass
+    if(flags[0] == 'ALL'):
+        for flag in record_types:
+            try:
+                answer = dns.resolver.resolve(f'{word}.{host}', flag)
+                for data in answer:
+                    logger.info(f'{word}.{host}  {flag}  -> {data.to_text()}')
+            except dns.resolver.NoAnswer:
+                pass
+            except dns.resolver.NXDOMAIN:
+                pass
+    else:
+        for flag in flags:
+            try:
+                answer = dns.resolver.resolve(f'{word}.{host}', flag)
+                for data in answer:
+                    logger.info(f'{word}.{host}  {flag}  -> {data.to_text()}')
+            except dns.resolver.NoAnswer:
+                pass
+            except dns.resolver.NXDOMAIN:
+                pass
+
 
 def main():
     parser = argparse.ArgumentParser(description='DNS Security Testing Tool')
@@ -134,7 +147,6 @@ def main():
             logger.info(f'Testing nameserver: {ns_server}')
             if args.scan == 'all':
                 transfer_zone(args.host, ns_server)
-        
         if args.scan == 'subdomain' or args.scan == 'all':
             print('\n------------- Subdomain ---------------')
             sub_domain_scan(args.host, wordlist, args.threads)
