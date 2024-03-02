@@ -64,8 +64,8 @@ def test_all_nameservers(host):
     except Exception as e:
         logger.error(f'Testing Error: {str(e)}')
 
-def sub_domain_scan(host, wordlist):
-    with ThreadPoolExecutor(50) as executor:
+def sub_domain_scan(host, wordlist, threads):
+    with ThreadPoolExecutor(threads) as executor:
         scan = [executor.submit(sub_domain_scan_worker, host, word) for word in wordlist]
         wait(scan)
 
@@ -79,8 +79,8 @@ def sub_domain_scan_worker(host, word):
     except dns.resolver.NoAnswer:
         pass
 
-def possible_takeover(host, wordlist):
-    with ThreadPoolExecutor(50) as executor:
+def possible_takeover(host, wordlist, threads):
+    with ThreadPoolExecutor(threads) as executor:
         scan = [executor.submit(possible_takeover_worker, host, word) for word in wordlist]
         wait(scan)
 
@@ -94,8 +94,8 @@ def possible_takeover_worker(host, word):
     except dns.resolver.NoAnswer:
         pass
 
-def dns_recon(host, wordlist):
-    with ThreadPoolExecutor(50) as executor:
+def dns_recon(host, wordlist, threads):
+    with ThreadPoolExecutor(threads) as executor:
         scan = [executor.submit(dns_recon_worker, host, word) for word in wordlist]
         wait(scan)
 
@@ -122,7 +122,7 @@ def main():
     wordlist = read_wordlist(args.wordlist)
 
     try:
-        logger.info('\n------------- Zone-Transfer -------------')
+        print('\n------------- Zone-Transfer -------------')
         nameservers = test_all_nameservers(args.host)
         for ns_server in nameservers:
             logger.info(f'Testing nameserver: {ns_server}')
@@ -131,13 +131,13 @@ def main():
         
         if args.scan == 'subdomain' or args.scan == 'all':
             print('\n------------- Subdomain ---------------')
-            sub_domain_scan(args.host, wordlist)
+            sub_domain_scan(args.host, wordlist, args.threads)
         if args.scan == 'takeover' or args.scan == 'all':
             print('\n------------- Possible Takeover -------------')
-            possible_takeover(args.host, wordlist)
+            possible_takeover(args.host, wordlist, args.threads)
         if args.scan == 'recon' or args.scan == 'all':
             print('\n------------- DNS Recon -------------')
-            dns_recon(args.host, wordlist)
+            dns_recon(args.host, wordlist, args.threads)
 
     except KeyboardInterrupt:
         quit()
