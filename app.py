@@ -1,17 +1,14 @@
-import sys
+import argparse
 import dns.resolver
 import dns.query
 import dns.zone
 from concurrent.futures import wait, ThreadPoolExecutor
 import logging
-
-host = sys.argv[1]
-wlist = sys.argv[2]
+import sys
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-universal_list = []
 record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT', 'SOA']
 
 def gen_banner():
@@ -29,26 +26,17 @@ def gen_banner():
 +=================================================================+
             """)
 
-def read_list():
-    open_file = open(wlist, 'r')
-    for word in open_file:
-        universal_list.append(word.rstrip('\n'))
-    logger.info('Wordlist opened successfully.')
-
-def start_subdomain_thread():
-    with ThreadPoolExecutor(50) as executor:
-        scan = [executor.submit(sub_domain_scan, word) for word in universal_list]
-        wait(scan)
-
-def start_takeover_thread():
-    with ThreadPoolExecutor(50) as executor:
-        scan = [executor.submit(possible_takeover, word) for word in universal_list]
-        wait(scan)
-
-def start_dns_resolve_thread():
-    with ThreadPoolExecutor(50) as executor:
-        scan = [executor.submit(dns_recon, word) for word in universal_list]
-        wait(scan)
+def read_wordlist(filename):
+    wordlist = []
+    try:
+        with open(filename, 'r') as file:
+            for word in file:
+                wordlist.append(word.strip())
+        logger.info('Wordlist opened successfully.')
+    except FileNotFoundError:
+        logger.error(f'Wordlist file \'{filename}\' not found.')
+        sys.exit(1)
+    return wordlist
 
 def transfer_zone(host, nameserver):
     try:
@@ -76,19 +64,27 @@ def test_all_nameservers(host):
     except Exception as e:
         logger.error(f'Testing Error: {str(e)}')
 
-def sub_domain_scan(word):
+def sub_domain_scan(host, wordlist):
+    with ThreadPoolExecutor(50) as executor:
+        scan = [executor.submit(sub_domain_scan_worker, host, word) for word in wordlist]
+        wait(scan)
+
+def sub_domain_scan_worker(host, word):
     try:
         ip_value = dns.resolver.resolve(f'{word}.{host}', 'A')
         if ip_value:
             logger.info(f'{word}.{host}')
-        else:
-            pass
     except dns.resolver.NXDOMAIN:
         pass
     except dns.resolver.NoAnswer:
         pass
 
-def possible_takeover(word):
+def possible_takeover(host, wordlist):
+    with ThreadPoolExecutor(50) as executor:
+        scan = [executor.submit(possible_takeover_worker, host, word) for word in wordlist]
+        wait(scan)
+
+def possible_takeover_worker(host, word):
     try:
         answer = dns.resolver.resolve(f'{word}.{host}', 'CNAME')
         for record in answer:
@@ -98,7 +94,12 @@ def possible_takeover(word):
     except dns.resolver.NoAnswer:
         pass
 
-def dns_recon(word):
+def dns_recon(host, wordlist):
+    with ThreadPoolExecutor(50) as executor:
+        scan = [executor.submit(dns_recon_worker, host, word) for word in wordlist]
+        wait(scan)
+
+def dns_recon_worker(host, word):
     for record in record_types:
         try:
             answer = dns.resolver.resolve(f'{word}.{host}', record)
@@ -110,22 +111,33 @@ def dns_recon(word):
             pass
 
 def main():
+    parser = argparse.ArgumentParser(description='DNS Security Testing Tool')
+    parser.add_argument('host', help='Host to perform DNS tests on')
+    parser.add_argument('wordlist', help='File containing a list of subdomains or keywords')
+    parser.add_argument('--threads', type=int, default=50, help='Number of threads to use for scanning (default: 50)')
+    parser.add_argument('--scan', choices=['subdomain', 'takeover', 'recon', 'all'], default='all', help='Type of scan to perform (default: all)')
+    args = parser.parse_args()
+
     gen_banner()
-    read_list()
-    
-    try:    
+    wordlist = read_wordlist(args.wordlist)
+
+    try:
         logger.info('\n------------- Zone-Transfer -------------')
-        nameservers = test_all_nameservers(host)
+        nameservers = test_all_nameservers(args.host)
         for ns_server in nameservers:
             logger.info(f'Testing nameserver: {ns_server}')
-            transfer_zone(host, ns_server)
+            if args.scan == 'all':
+                transfer_zone(args.host, ns_server)
         
-        print('\n------------- Subdomain ---------------')
-        start_subdomain_thread()
-        print('\n------------- Possible Takeover -------------')
-        start_takeover_thread()
-        print('\n------------- DNS Recon -------------')
-        start_dns_resolve_thread()
+        if args.scan == 'subdomain' or args.scan == 'all':
+            print('\n------------- Subdomain ---------------')
+            sub_domain_scan(args.host, wordlist)
+        if args.scan == 'takeover' or args.scan == 'all':
+            print('\n------------- Possible Takeover -------------')
+            possible_takeover(args.host, wordlist)
+        if args.scan == 'recon' or args.scan == 'all':
+            print('\n------------- DNS Recon -------------')
+            dns_recon(args.host, wordlist)
 
     except KeyboardInterrupt:
         quit()
