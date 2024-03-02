@@ -6,7 +6,12 @@ from concurrent.futures import wait, ThreadPoolExecutor
 import logging
 import sys
 
-logging.basicConfig(level=logging.INFO, format='[%(asctime)s] [%(levelname)s] - %(message)s')
+class Color:
+    BLUE = '\033[94m'
+    RED = '\033[91m'
+    YELLOW = '\033[93m'
+    ENDC = '\033[0m'
+logging.basicConfig(level=logging.INFO, format=f'{Color.YELLOW}[%(asctime)s]{Color.ENDC} {Color.BLUE}[%(levelname)s]{Color.ENDC} - %(message)s')
 logger = logging.getLogger(__name__)
 
 record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT', 'SOA']
