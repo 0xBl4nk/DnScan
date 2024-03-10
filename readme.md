@@ -29,10 +29,6 @@ params:
   --scan {subdomain,takeover,recon,all} DEFAULT: ALL
 ```
 
-#### Output example:
-
-<img src="https://i.imgur.com/fb0FY30.png" alt="chip-8 output">
-
 ## 📫 Contribuite
 
 ### To contribute to chip-8, follow these steps
