@@ -30,9 +30,8 @@ params:
   --threads <n threads>
   --scan {subdomain,takeover,recon,all} DEFAULT: ALL
 ```
-#### All functions usage:
+#### All functions usage example:
 ```
-python3 dnscan --scan all --thread 100 <host-to-scan> subdomain.txt
 ./dnscan --scan all --thread 100 <host-to-scan> subdomain.txt
 ```
 
