@@ -14,8 +14,10 @@
 git clone https://github.com/ArthurHydr/DnScan.git
 ```
 * To install requirements: (dnspython)
-```
+```bash
 pip3 install -r requirements.txt
+# OR
+pip3 install -r requirements.txt --break-system-packages
 ```
 ## ☕ Use
 
@@ -27,6 +29,10 @@ params:
   --flags <dns flag> DEFAULT: ALL
   --threads <n threads>
   --scan {subdomain,takeover,recon,all} DEFAULT: ALL
+```
+#### All functions usage:
+```
+python3 app.py --scan all --thread 100 <host-to-scan> subdomain.txt
 ```
 
 ## 📫 Contribuite
