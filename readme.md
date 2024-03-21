@@ -24,7 +24,7 @@ pip3 install -r requirements.txt --break-system-packages
 ### To run DnScan:
 
 ```
-python3 app.py <host> <wordlist> (subdomains.txt wordlist, in repository)
+./dnscan <host> <wordlist> (subdomains.txt wordlist, in repository)
 params: 
   --flags <dns flag> DEFAULT: ALL
   --threads <n threads>
@@ -32,7 +32,8 @@ params:
 ```
 #### All functions usage:
 ```
-python3 app.py --scan all --thread 100 <host-to-scan> subdomain.txt
+python3 dnscan --scan all --thread 100 <host-to-scan> subdomain.txt
+./dnscan --scan all --thread 100 <host-to-scan> subdomain.txt
 ```
 
 ## 📫 Contribuite
