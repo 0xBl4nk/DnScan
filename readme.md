@@ -37,7 +37,7 @@ python3 app.py --scan all --thread 100 <host-to-scan> subdomain.txt
 
 ## 📫 Contribuite
 
-### To contribute to chip-8, follow these steps
+### To contribute to DNScan, follow these steps
 
 1. Fork this repository.
 2. Create a branch: `git checkout -b <branch_name>`.
