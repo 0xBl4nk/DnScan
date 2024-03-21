@@ -4,7 +4,7 @@ import dns.query
 import dns.zone
 from concurrent.futures import wait, ThreadPoolExecutor
 import logging
-import sys
+
 
 class Color:
     BLUE = '\033[94m'
@@ -12,13 +12,17 @@ class Color:
     YELLOW = '\033[93m'
     ENDC = '\033[0m'
 
-logging.basicConfig(level=logging.INFO, format=f'{Color.YELLOW}[%(asctime)s]{Color.ENDC} {Color.BLUE}[%(levelname)s]{Color.ENDC} - %(message)s')
+
+logging.basicConfig(level=logging.INFO,
+                    format=f'{Color.YELLOW}[%(asctime)s]{Color.ENDC} \
+                    {Color.BLUE}[%(levelname)s]{Color.ENDC} - %(message)s')
 logger = logging.getLogger(__name__)
 
-record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT', 'SOA']
+record_types = ['A', 'AAAA', 'CNAME', 'MX', 'PTR', 'SOA', 'HINFO', 'TXT']
+
 
 def gen_banner():
-    print(""" 
+    print("""
 +=================================================================+
 |              ######     ######              #          ######   |
 |   #######                                   #   ###             |
@@ -27,10 +31,11 @@ def gen_banner():
 |      #            ##       #     #     ##   #               ##  |
 |      #          ##        #              ## #             ##    |
 | ##########    ##        ##                   #######    ##      |
-+=================================================================+                                                             
++=================================================================+
 | Made By: Arthur Ottoni --> github.com/arthurhydr/DnScan         |
 +=================================================================+
-            """)
+    """)
+
 
 def read_wordlist(filename):
     wordlist = []
@@ -41,8 +46,8 @@ def read_wordlist(filename):
         logger.info('Wordlist opened successfully.')
     except FileNotFoundError:
         logger.error(f'Wordlist file \'{filename}\' not found.')
-        sys.exit(1)
     return wordlist
+
 
 def transfer_zone(host, nameserver):
     try:
@@ -56,8 +61,9 @@ def transfer_zone(host, nameserver):
         logger.info(f'{Color.BLUE}Successful zone-transfer to {nameserver}{Color.ENDC}')
     except dns.zone.NoSOA:
         logger.error(f'{Color.RED}Zone-transfer failed for {nameserver}{Color.ENDC}')
-    except Exception as e:
+    except Exception:
         logger.error(f'{Color.RED}Error in zone-transfer to {nameserver}{Color.ENDC}')
+
 
 def test_all_nameservers(host):
     try:
@@ -70,10 +76,12 @@ def test_all_nameservers(host):
     except Exception as e:
         logger.error(f'{Color.RED}Testing Error: {str(e)}{Color.ENDC}')
 
+
 def sub_domain_scan(host, wordlist, threads):
     with ThreadPoolExecutor(threads) as executor:
         scan = [executor.submit(sub_domain_scan_worker, host, word) for word in wordlist]
         wait(scan)
+
 
 def sub_domain_scan_worker(host, word):
     try:
@@ -85,10 +93,12 @@ def sub_domain_scan_worker(host, word):
     except dns.resolver.NoAnswer:
         pass
 
+
 def possible_takeover(host, wordlist, threads):
     with ThreadPoolExecutor(threads) as executor:
         scan = [executor.submit(possible_takeover_worker, host, word) for word in wordlist]
         wait(scan)
+
 
 def possible_takeover_worker(host, word):
     try:
@@ -100,10 +110,12 @@ def possible_takeover_worker(host, word):
     except dns.resolver.NoAnswer:
         pass
 
+
 def dns_recon(host, wordlist, threads, flags):
     with ThreadPoolExecutor(threads) as executor:
         scan = [executor.submit(dns_recon_worker, host, word, flags) for word in wordlist]
         wait(scan)
+
 
 def dns_recon_worker(host, word, flags):
     if(flags[0] == 'ALL'):
@@ -159,6 +171,7 @@ def main():
 
     except KeyboardInterrupt:
         quit()
+
 
 if __name__ == '__main__':
     main()
