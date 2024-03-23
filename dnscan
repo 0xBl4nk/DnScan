@@ -14,7 +14,8 @@ class Color:
     YELLOW = '\033[93m'
     ENDC = '\033[0m'
 
-LOG_FORMAT=f'{Color.YELLOW}[%(asctime)s]{Color.ENDC} {Color.BLUE}[%(levelname)s]{Color.ENDC} - %(message)s'
+
+LOG_FORMAT = f'{Color.YELLOW}[%(asctime)s]{Color.ENDC} {Color.BLUE}[%(levelname)s]{Color.ENDC} - %(message)s'
 logging.basicConfig(level=logging.INFO,
                     format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
